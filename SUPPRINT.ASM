@@ -7,7 +7,7 @@ Start:
 		mov es, bx
 		xor bx, bx
 		
-	xor cx, cx			
+	mov cx, 80d * 25d			
 	next:	mov word ptr es:[bx], 8421h	;set symbol '!' to vide memory
 			add bx, 2h
 	loop next
