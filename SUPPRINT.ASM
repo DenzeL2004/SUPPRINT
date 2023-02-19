@@ -2,14 +2,18 @@
 .code 
 org 100h
 
+START_INPUT_PARAM 	 equ 0081h
+VIDEO_MEMORRY_ADDRES equ 0B800h
+MIDDLE_SCREEN	     equ 2000d
+
 Main:
 		
-	mov SI, 0081h 
+	mov SI, START_INPUT_PARAM 
 
 	cmp byte ptr [SI], 0Dh			;no string
 	je goToEnd
 
-	push 0082h
+	push START_INPUT_PARAM + 1
 
 	call PrintToMemory
 		
@@ -18,29 +22,32 @@ Main:
 		int 21h	
 
 
-	PrintToMemory PROC
+	;The function outputs a string at the specified address.
+	;Overwritten registers BP, ES, SI, DX. 
+	;No return value
+	PrintToMemory PROC	
 
-		push BP
-		mov  BP, SP
+		push BP				;save BP val
+		mov  BP, SP			
 
 		mov SI, [BP+4]
 
-		mov BX, 0B800h			;video memory adress
+		mov BX, VIDEO_MEMORRY_ADDRES		;video memory address
 		mov ES, BX
 
-		mov BX, 2000d			;video memory pointer
+		mov BX, MIDDLE_SCREEN		;video memory pointer
 
 		xor DX, DX
 		next:	
-			add DH, [SI]		;color symbol
-			or  DH, 08h	
+			add DH, [SI]		;definу color symbol
+			or  DH, 00001000b	;make bright color
 			mov DL, [SI] 		;cur symbol Message  
 
 			mov word ptr ES:[BX], dx 	;set message symbol to video memory
 			add BX, 2h
 				
 		inc SI	 
-		cmp byte ptr [SI], 0Dh
+		cmp byte ptr [SI], 0Dh			;exit condition
 		jne next
 
 		pop BP
